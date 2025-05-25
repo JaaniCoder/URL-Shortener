@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>URL Shortener</title>
+  <link href="./output.css" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+  <style>
+    input:focus, button:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-tr from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:to-gray-800 min-h-screen text-gray-800 dark:text-gray-100 transition-all">
+  <main class="flex items-center justify-center py-10 px-4">
+    <div class="w-full max-w-xl bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl transition-all duration-500">
+      <div class="flex justify-between items-center mb-4">
+        <h1 class="text-3xl font-extrabold text-blue-700 dark:text-blue-300 tracking-tight">✂️ URL Shortener</h1>
+        <button onclick="toggleDarkMode()" class="text-sm text-blue-600 dark:text-yellow-300">
+          🌓 Toggle Theme
+        </button>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="mb-4 space-y-2">
+            {% for message in messages %}
+              <div class="bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-100 p-3 rounded-lg text-sm font-medium animate-pulse">
+                ⚠️ {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="post" onsubmit="return showLoading()" class="space-y-4 animate-fade-in">
+        <input type="url" name="long_url" id="long_url"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700"
+               placeholder="https://example.com/some/very/long/url" required>
+
+        <input type="text" name="custom_alias" id="custom_alias"
+               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-700"
+               placeholder="my-custom-link (optional)">
+
+        <button id="submitBtn" type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg font-semibold transition duration-200 flex items-center justify-center gap-2">
+          <span id="btnText">🔗 Generate Short Link</span>
+          <svg id="loadingSpinner" class="hidden w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+        </button>
+      </form>
+
+      {% if short_url %}
+        <div class="mt-6 p-4 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg text-center shadow-inner">
+          <p class="font-semibold">✅ Your Shortened URL:</p>
+          <div class="flex justify-center items-center gap-2 mt-2 flex-wrap">
+            <a href="{{ short_url }}" class="text-blue-600 underline text-lg break-all" target="_blank">
+              {{ short_url }}
+            </a>
+            <button onclick="copyToClipboard('{{ short_url }}')"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 text-sm rounded">
+              📋 Copy
+            </button>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="mt-6 text-center">
+        <a href="{{ url_for('analytics') }}" class="text-blue-500 hover:underline text-sm">
+          📊 View URL Analytics
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function showLoading() {
+      document.getElementById('btnText').textContent = 'Generating...';
+      document.getElementById('loadingSpinner').classList.remove('hidden');
+      return true;
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => alert("Short URL copied to clipboard!")).catch(() => alert("Failed to copy."));
+    }
+  </script>
+</body>
+</html>
